@@ -1,70 +1,133 @@
-# Getting Started with Create React App
+# REDUX
+Redux is a state management library
+It helps to manage the state of an application in a more organized and centralized manner
+Means states are stored in this library and when we want to use the state then we can easily access from Redux store
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## you can send data from parent to child and also from child to parent or between Siblings
+Earlier we send the data from parent to child by using the props,useContext Api hooks 
+but now we can easily share the data of parent to child 
+we first store the parent data in Redux store then we use it in child component
 
-In the project directory, you can run:
 
-### `npm start`
+## Work-Flow of Redux
+1) Action(What to Do)
+2) Reducer(How to Do)
+3) Store the reducer
+4) wrap the parent(index.js) in React with Provider
+5) use in Any Component As you Want
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# EXAMPLE OF INCREMENT/DECREMENT COUNTER
+## 1) Action(what to Do)==>TWO THINGS ONE INCREMENT COUNTER AND OTHER DECREMENT COUNTER
+inside src created a folder called actions inside this created file index.js
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+     export const incNumber=(num)=>{
+       return {
+          type:"INCREMENT",
+          payload:num
+        }
+     }
 
-### `npm test`
+    export const decNumber=()=>{
+      return {
+         type:"DECREMENT"
+       }
+    }
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 2) REDUCER (HOW TO DO)
+inside src folder created a folder called reducers inside this we can write any logic(means many files as we want)
+and finally combine all the files inside reducers/index.js
+  
+updown.js(HOW TO DO)
 
-### `npm run build`
+     const initialState=0
+     const changeTheNumber=(state=initialState,action)=>{
+          switch(action.type){
+            case "INCREMENT" :return state+action.payload;
+            case "DECREMENT" : return state-1;
+            default: return state
+          }
+     }
+     
+     export default changeTheNumber
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+index.js(Combine all reducers)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+       import changeTheNumber from "./updown";
+       import {combineReducers} from "redux"
+       const rootReducer=combineReducers({
+           changeTheNumber
+       })
+     export default rootReducer;
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+## 3)Store the Reducers in Redux
+inside src folder crete a file called store.js
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+store.js
+       import { legacy_createStore as createStore } from 'redux';
+       import rootReducer from './reducers/index';
+       const store=createStore(rootReducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
+       export default store
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 4)Wrap the parent(index.js) with Provider
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+       import React from 'react';
+       import ReactDOM from 'react-dom/client';
+       import './index.css';
+       import App from './App';
+       import reportWebVitals from './reportWebVitals';
+     + import store from './store';
+     + import { Provider } from 'react-redux';
+       
+       // to check redux state
+     + store.subscribe(() => console.log(store.getState()));
+       
+       const root = ReactDOM.createRoot(document.getElementById('root'));
+       root.render(
+         <React.StrictMode>
+     +     <Provider store={store}>
+             <App />
+           </Provider>
+         </React.StrictMode>
+       );
+       
+       // If you want to start measuring performance in your app, pass a function
+       // to log results (for example: reportWebVitals(console.log))
+       // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+       reportWebVitals();
+       
 
-## Learn More
+## 5)Now you can use it in Any Component in this example we will use in App.js
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+       import React from 'react'
+       import './App.css'
+     + import { useSelector, useDispatch } from "react-redux"
+     + import changeTheNumber from './reducers/updown';
+     + import { incNumber, decNumber } from "./actions/index"
+       
+       
+       const App = () => {
+      +  const myState = useSelector((state) => state.changeTheNumber);
+      +  const dispatch = useDispatch();
+       
+         return (
+           <>
+             <div className='container'>
+               <h1>Increment/Decrement counter</h1>
+               <h4>Using React-Redux</h4>
+               <div className='quantity'>
+         +       <div onClick={() => dispatch(decNumber())}>-</div>
+         +       <input name="quantity" type="text" value={myState} />
+         +       <div onClick={() => dispatch(incNumber(5))}>+</div>
+               </div>
+             </div>
+           </>
+         )
+       }
+       
+       export default App
+              
+              
+              
